@@ -1,0 +1,46 @@
+---
+title: "Class Project"
+author: "Gene Rogers"
+date: "March 1, 2016"
+output: html_document
+---
+
+## General Notes:  I cleaned this data in Excel as I am not as proficient as I need to be in "R". 
+
+## Import Training and testing sets
+```{r read.csv}
+pml.training <- read.csv("~/Desktop/project/pml-training.csv")
+pml.testing <- read.csv("~/Desktop/project/pml-testing.csv")
+```
+
+
+## Create data partition for cross validation
+```{r inTrain}
+library(caret)
+inTrain<-createDataPartition(pml.training$classe,p=0.7, list=FALSE)
+training<-pml.training[inTrain,]
+testing<-pml.training[-inTrain,]
+```
+
+## Run randomForest model limiting thet trees to 100 using the randomForest package
+```{r model}
+library(randomForest)
+fitModel <- randomForest(classe~., data=training, importance=TRUE, ntree=100)
+```
+
+##Review modFit parameters and check for acruacy using test data
+```{r testing and accuracy}
+predictions <- predict(fitModel, newdata=testing)
+confusionMat <- confusionMatrix(predictions, testing$classe)
+confusionMat
+```
+
+
+##Run the model on the pml.testing table
+```{r predictions}
+predictions <- predict(fitModel, newdata=pml.testing)
+predictions
+```
+
+
+
